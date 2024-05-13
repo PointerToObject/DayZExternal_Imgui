@@ -19,9 +19,10 @@ Features
          : Draw crosshair (Draws a green Crosshair in the middle of the cheat)
          : Goals Below : 
 To do list:
-1. Seperate Players/Zombies in the entity tables 
-2. Fix local player position
+1. Seperate Players/Zombies in the entity tables (done)
+2. Fix local player position (done)
 4. Draw Players and zombies on screen
 5. Draw Bullets on screen
 
-![image](https://github.com/PointerToObject/DayZExternal_Imgui/assets/164882065/212f2a3c-68bb-4da4-b816-283a5806e40d)
+
+![image](https://github.com/PointerToObject/DayZExternal_Imgui/assets/164882065/c154a24f-e075-40f9-98f4-12c5da3efa8a)
