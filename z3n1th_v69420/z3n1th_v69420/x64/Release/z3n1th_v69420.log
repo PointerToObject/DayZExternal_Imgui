@@ -1,0 +1,11 @@
+﻿  window.cpp
+C:\Users\aiden\OneDrive\Desktop\dayz_external_withoverlay\z3n1th_v69420\z3n1th_v69420\src\window.cpp(393,21): warning C4018: '<': signed/unsigned mismatch
+C:\Users\aiden\OneDrive\Desktop\dayz_external_withoverlay\z3n1th_v69420\z3n1th_v69420\src\window.cpp(415,22): warning C4018: '<': signed/unsigned mismatch
+C:\Users\aiden\OneDrive\Desktop\dayz_external_withoverlay\z3n1th_v69420\z3n1th_v69420\src\window.cpp(422,22): warning C4018: '<': signed/unsigned mismatch
+x64\Release\window.obj : warning LNK4042: object specified more than once; extras ignored
+  Generating code
+  30 of 1636 functions ( 1.8%) were compiled, the rest were copied from previous compilation.
+    0 functions were new in current compilation
+    32 functions had inline decision re-evaluated but remain unchanged
+  Finished generating code
+  z3n1th_v69420.vcxproj -> C:\Users\aiden\OneDrive\Desktop\dayz_external_withoverlay\z3n1th_v69420\x64\Release\z3n1th_v69420.exe
