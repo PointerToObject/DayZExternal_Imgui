@@ -16,10 +16,10 @@ Features
          : ESP        ( esp on zombies, players, cars )
          : Entity Table View (Shows all entites on the near/far table and sorts them from player to zombie from the rtti, also shows position)
          : Bullet Table View(Shows all bullet entites on the bullet table, displays position too)
-         : "Local Player" position (It isnt the local player, but its the first entity allocated on the near table, ill add a local player struct soon, im just lazy lmao)
+         : Local Player position (as is)
          : Eye Accom Slider (Kinda like a Night to day cheat, its really cool, I suggest to use 20)
-         : Draw crosshair (Draws a green Crosshair in the middle of the cheat)
-         : Goals Below : 
+         : Draw crosshair (Draws a green Crosshair in the middle of the overlay)
+
 To do list:
 1. Seperate Players/Zombies in the entity tables (done)
 2. Fix local player position (done)
