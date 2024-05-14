@@ -1,3 +1,4 @@
+#pragma once
 #include <iostream>
 #include <Windows.h>
 #include "Vector.h"
@@ -53,6 +54,25 @@ struct VisualState {
     
 };
 
+
+struct RTTI 
+{
+    unsigned long signature;
+    unsigned long offset;
+    unsigned long cd_offset;
+    unsigned long rva_type_descriptor;
+};
+
+struct type_descriptor
+{
+private:
+    char pad0[20];
+public:
+    char type_name[128];
+
+    const char* get_type_name() { return type_name; }
+
+};
 
 struct Camera
 {   

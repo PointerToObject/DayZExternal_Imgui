@@ -54,4 +54,6 @@ inline Overlay overlay;
 
 extern bool drawCrosshair;
 
+extern bool showEsp;
 
+extern bool showBulletESP;

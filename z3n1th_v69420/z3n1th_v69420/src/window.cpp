@@ -7,7 +7,6 @@
 #include "GameEngine.h"
 #include "Memory.h"
 
-#define off_entity_renderervisualstate 0x1D0;
 
 ID3D11Device* Overlay::device = nullptr;
 
@@ -346,9 +345,10 @@ bool switchState = false;
 bool showSecondWindow = false;
 bool showFourthWindow = false;
 bool showFifthWindow = false;
+bool showEsp = false;
+bool showBulletESP = false;
 bool showSlider = false;
 bool drawCrosshair = false;
-
 float sliderValue = 10.0f;
 float eyeAccomNormal = 1.0f;
 float back = -4.0f;
@@ -364,12 +364,15 @@ void Overlay::Render()
 	CDispatcher* mem = CDispatcher::Get();
 	uint64_t base = mem->GetModuleBase("DayZ_x64.exe");
 	uint64_t worldPtr = mem->ReadMemory<uint64_t>(base + xWorld);
-	
+	Camera cam;
 
 
 	ImGui::SetNextWindowSize({ 375,250});
 	ImGui::Begin("Z3N1TH R3L04D3D", &RenderMenu, ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoResize);
 
+	ImGui::Checkbox("ESP", &showEsp);
+
+	ImGui::Checkbox("Bullet ESP", &showBulletESP);
 
 	if (ImGui::Button("entity list")) {// yes yes
 		showFourthWindow = true;
@@ -385,7 +388,7 @@ void Overlay::Render()
 
 
 	if (showSecondWindow) {
-		ImGui::SetNextWindowSize({ 275,275 }); // works, gonna add near + far next
+		ImGui::SetNextWindowSize({ 433,400 }); 
 		ImGui::Begin("Z3N1TH R3L04D3D - Bullet Table", &showSecondWindow, ImGuiWindowFlags_NoSavedSettings);
 
 		World world = mem->ReadMemory<World>(worldPtr);
@@ -393,9 +396,9 @@ void Overlay::Render()
 		for (int i = 0; i < world.BulletTableCount; i++) {
 			uint64_t bulletEntity = mem->ReadMemory<uint64_t>(world.BulletTable + (i * 0x8));
 			uint64_t entityVisState = mem->ReadMemory<uint64_t>(bulletEntity + 0x1D0);
-			float xPos = mem->ReadMemory<float>(entityVisState + 0x2C);
-
-			ImGui::Text("(Bullet Table) - Entity %d X Pos: %.3f", i, xPos);
+			CVector pos = mem->ReadMemory<CVector>(entityVisState + 0x2C);
+			
+			ImGui::Text("(Bullet Table) - Entity %d Pos: %.3f, %.3f, %.3f", i, pos.x, pos.y, pos.z);
 		}
 			
 
@@ -404,26 +407,51 @@ void Overlay::Render()
 
 
 	if (showFourthWindow) {
-		ImGui::SetNextWindowSize({ 275,275 });
+		ImGui::SetNextWindowSize({ 700,400 });
 		ImGui::Begin("Z3N1TH R3L04D3D - entity list", &showFourthWindow, ImGuiWindowFlags_NoSavedSettings);
 
 		World world = mem->ReadMemory<World>(worldPtr);
 
 		while (true) {
-			ImGui::BeginChild("EntityList", ImVec2(0, 0), true, ImGuiWindowFlags_AlwaysVerticalScrollbar | ImGuiWindowFlags_AlwaysAutoResize );
+			ImGui::BeginChild("EntityList", ImVec2(0, 0), true, ImGuiWindowFlags_AlwaysVerticalScrollbar);
 
 			for (int i = 0; i < world.NearTableCount; i++) {
 				uint64_t entity = mem->ReadMemory<uint64_t>(world.NearTable + (i * 0x8));
+				uint64_t entityVT = mem->ReadMemory<uint64_t>(entity + 0x0);
 				uint64_t entityVisState = mem->ReadMemory<uint64_t>(entity + 0x1D0);
-				float xPos = mem->ReadMemory<float>(entityVisState + 0x2C);
-				ImGui::Text("(Near Table) - Entity %d X Pos: %.2f", i, xPos); 
-			}
+				CVector pos = mem->ReadMemory<CVector>(entityVisState + 0x2C);
+				CVector screenPos;
 
+				//VTABLE 
+				uint64_t ptrrtti = mem->ReadMemory<uint64_t>(entityVT - 0x8);
+				RTTI rtti = mem->ReadMemory<RTTI>(ptrrtti);
+				type_descriptor type = mem->ReadMemory<type_descriptor>(base + rtti.rva_type_descriptor);
+				//VTABLE 
+				const char* typeName = type.get_type_name();
+				size_t typeNameLength = strlen(typeName);
+				std::string modifiedTypeName(typeName, typeNameLength - 2);
+
+				ImGui::Text("(Near Table) -(%s) Entity %d Pos: %.2f , %.2f ,%.2f ", modifiedTypeName.c_str(), i, pos.x, pos.y, pos.z);
+
+
+			}
+			
 			for (int i = 0; i < world.FarTableCount; i++) {
 				uint64_t entity = mem->ReadMemory<uint64_t>(world.FarTable + (i * 0x8));
+				uint64_t entityVT = mem->ReadMemory<uint64_t>(entity + 0x0);
 				uint64_t entityVisState = mem->ReadMemory<uint64_t>(entity + 0x1D0);
-				float xPos = mem->ReadMemory<float>(entityVisState + 0x2C);
-				ImGui::Text("(Far Table) - Entity %d X Pos: %.2f", i, xPos);
+				CVector pos = mem->ReadMemory<CVector>(entityVisState + 0x2C);
+				// VTABLE
+				uint64_t ptrrtti = mem->ReadMemory<uint64_t>(entityVT - 0x8);
+				RTTI rtti = mem->ReadMemory<RTTI>(ptrrtti);
+				type_descriptor type = mem->ReadMemory<type_descriptor>(base + rtti.rva_type_descriptor);
+				const char* typeName = type.get_type_name();
+				size_t typeNameLength = strlen(typeName);
+				std::string modifiedTypeName(typeName, typeNameLength - 2);
+				//VTABLE
+
+				ImGui::Text("(Far Table) -(%s) Entity %d Pos: %.2f, %.2f, %.2f", modifiedTypeName.c_str(), i, pos.x, pos.y, pos.z);
+			
 			}
 
 			ImGui::EndChild();
@@ -433,22 +461,22 @@ void Overlay::Render()
 		ImGui::End();
 	}
 
+	if (showEsp) {
+		
+	}
+
 	if (showFifthWindow) {
-		ImGui::SetNextWindowSize({ 275,275 }); // works :D
+		ImGui::SetNextWindowSize({ 372,72 }); // works :D
 		ImGui::Begin("Z3N1TH R3L04D3D - Player Position", &showFifthWindow, ImGuiWindowFlags_NoSavedSettings);
 		//     [[[[[[DayZ_x64.exe + 0x414CF70] + 0xF48]] + 0x1D0]] + 0x2C] pointer chain to position
 		//	   [[DayZ_x64.exe + 0xWORLD] + 0x8] - 0xA8	- Local Player
 		World world = mem->ReadMemory<World>(worldPtr);
-		uint64_t entityBase = world.NearTable;
-		uint64_t dayzPlayer = mem->ReadMemory<uint64_t>(entityBase + 0);
-		uint64_t visualState = mem->ReadMemory<uint64_t>(dayzPlayer + 0x1D0);
-		float xPos = mem->ReadMemory<float>(visualState + 0x2C); 
-		float yPos = mem->ReadMemory<float>(visualState + 0x30); 
-		float zPos = mem->ReadMemory<float>(visualState + 0x34); 
+		uint64_t EntityLink = mem->ReadMemory<uint64_t>(worldPtr + 0x2960);
+		uint64_t LocalPlayer = mem->ReadMemory<uint64_t>(EntityLink + 0x8) - 0xA8;
+		uint64_t localPlrVisState = mem->ReadMemory<uint64_t>(LocalPlayer + 0x1D0);
+		CVector pos = mem->ReadMemory<CVector>(localPlrVisState + 0x2C);
 
-		ImGui::Text("X : %.3f", xPos);
-		ImGui::Text("Y : %.3f", yPos);
-		ImGui::Text("Z : %.3f", zPos);
+		ImGui::Text("Local Player Position : %.2f, %.2f, %.2f", pos.x, pos.y, pos.z);
 
 		ImGui::End();
 	}
